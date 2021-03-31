@@ -18,7 +18,22 @@ class TeacherRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Teacher::class);
     }
+    /**
+     * Retourne les modules et tâches associés.
+     * @return Teacher[] Returns an array
+     */
 
+    public function findDetailled()
+    {
+        $qb = $this->createQueryBuilder('t');
+        $qb->select('t')
+            ->leftJoin('t.modules', 'm')
+            ->groupBy('t.id')
+            ->addSelect('m');
+        return $qb
+            ->getQuery()
+            ->getResult();
+    }
     // /**
     //  * @return Teacher[] Returns an array of Teacher objects
     //  */

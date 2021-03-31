@@ -30,7 +30,7 @@ class Teacher
     private $modules;
 
     /**
-     * @ORM\OneToMany(targetEntity=Task::class, mappedBy="teacher")
+     * @ORM\OneToMany(targetEntity=Task::class, mappedBy="teacher", cascade={"persist", "remove"})
      */
     private $tasks;
 
@@ -112,6 +112,6 @@ class Teacher
     }
     public function __toString(): string
     {
-    return $this->name;
+        return $this->name;
     }
 }
