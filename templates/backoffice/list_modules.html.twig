@@ -9,6 +9,7 @@
             <tr>
                 <th scope="col">Nom</th>
                 <th scope="col">Professeurs</th>
+                <th scope="col">Année</th>
                 <th scope="col">Supprimer</th>
                 <th scope="col"> Modification</th>
 
@@ -25,6 +26,9 @@
                     {{ teacher.teacher_name }}
                     {%endif%}
                     {% endfor %}
+                </th>
+                <th scope="row">
+                    {{ module.campain }}
                 </th>
                 <td>
                     <form action="{{ path('module_delete' ,{id:module.id})}}" method="POST" class="d-inline">

@@ -18,42 +18,51 @@ class GroupController extends AbstractController
     /**
      * @Route("/backoffice/groups", name="group")
      */
-    public function index(GroupRepository $GroupRepository): Response
+    public function index(GroupRepository $grouprepository): Response
     {
+        $groups = $grouprepository->findAll();
+        foreach ($groups as $group) {
+            $id = $group->getId();
+            $tasks = $group->getTasks();
+            foreach ($tasks as $task) {
+                $tache = $task->getDescription();
+                $table_tache[] = ["group_id" => $id, "task_description" => $tache];
+            }
+        }
         return $this->render('backoffice/group.html.twig', [
-            'groups' => $GroupRepository->findAll(),
-           
+            'groups' => $groups,
+            'table' => $table_tache,
         ]);
     }
-     /**
+    /**
      * @Route("/backoffice/groups/add", name="add_group")
      */
     public function add_group(Request $request, EntityManagerInterface $em): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
-         
-            $group = new Group();
-            // préparer l'objet formulaire
-            $form = $this->createForm(GroupType::class, $group);
-            // Mettre en place le gestionnaire de formulaire
-            $form->handleRequest($request);
-            // Si le formulaire a été soumis et que les données sont valides
-            if ($form->isSubmitted() && $form->isValid()) {
+
+        $group = new Group();
+        // préparer l'objet formulaire
+        $form = $this->createForm(GroupType::class, $group);
+        // Mettre en place le gestionnaire de formulaire
+        $form->handleRequest($request);
+        // Si le formulaire a été soumis et que les données sont valides
+        if ($form->isSubmitted() && $form->isValid()) {
             // récupérer les données soumises
             $group = $form->getData();
             // enregistrer les données dans la base
             $em->persist($group);
             $em->flush();
-            
+
             // rediriger vers l’accueil
             return $this->redirectToRoute('group');
-            }
-            // sinon afficher le formulaire
-            return $this->render('backoffice/add_group.html.twig', [
+        }
+        // sinon afficher le formulaire
+        return $this->render('backoffice/add_group.html.twig', [
             'form' => $form->createView()
-            ]) ;
+        ]);
     }
-     /**
+    /**
      * Effacer une tâche.
  
      * @Route("backoffice/group/{id}/delete", name="delete_group", methods="DELETE")
@@ -66,7 +75,7 @@ class GroupController extends AbstractController
         $em->flush();
         return $this->redirectToRoute('group');
     }
-     /**
+    /**
      * Editer un groupe
      * 
      * @Route("backoffice/{id}/group", name="edit_group", methods={"GET","POST"})

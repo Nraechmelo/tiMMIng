@@ -5,43 +5,50 @@
 {% block body %}
 <h1> Liste des groupes de classe </h1>
 <div>
-<a href="{{ path('add_group')}}">Ajouter un groupe</a>
-<table>
-    <thead>
-     <tr>
-            <th> Nom du groupe </th>
-            <th> Type de groupe </th>
-            <th> Semestre </th>
-            <th> Promotion </th>
-            <th> Tâches </th>
+    <a href="{{ path('add_group')}}">Ajouter un groupe</a>
+    <table>
+        <thead>
+            <tr>
+                <th> Nom du groupe </th>
+                <th> Type de groupe </th>
+                <th> Semestre </th>
+                <th> Promotion </th>
+                <th> Tâches </th>
 
-    </tr>
-    </thead>
-    <tbody> 
-  
-{% for group in groups %} 
-<tr>
-<td>{{group.name}}</td>
-  
-<td>{{group.type}}</td>
+            </tr>
+        </thead>
+        <tbody>
 
-<td>{{group.semester}}</td>
+            {% for group in groups %}
+            <tr>
+                <td>{{group.name}}</td>
 
-<td>{{group.campain}}</td>
+                <td>{{group.type}}</td>
 
-{# <td>{{group.tasks}}</td> #}
+                <td>{{group.semester}}</td>
 
-<td><a href="{{ path('edit_group', { id: group.id })}}">Editer</a></td>
-<td> <form action="{{ path( 'delete_group', { id: group.id }) }}" method="post" class="d-inline"> 
+                <td>{{group.campain}}</td>
+
+                <th scope="row">{% for task in table %}
+                    {% if task.group_id == group.id %}
+                    {{ task.task_description }}
+                    {% endif %}
+                    {% endfor %}</th>
+                <td>
+
+                <td><a href="{{ path('edit_group', { id: group.id })}}">Editer</a></td>
+                <td>
+                    <form action="{{ path( 'delete_group', { id: group.id }) }}" method="post" class="d-inline">
                         <input type="hidden" name="_method" value="delete">
                         <button class="btn btn-link text-danger" type="submit">effacer</button>
-                    </form></td>
+                    </form>
+                </td>
 
-  </tr>
-  
-{% endfor %}
-   
-    </tbody>
-</table>
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+    </table>
 </div>
 {% endblock %}
