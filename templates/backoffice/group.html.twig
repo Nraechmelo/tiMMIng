@@ -6,6 +6,17 @@
 <h1> Liste des groupes de classe </h1>
 <div>
     <a href="{{ path('add_group')}}">Ajouter un groupe</a>
+
+    {#<form action=" {{ path('group_filter') }}" method="POST" enctype="multipart/form-data" class="container row">
+        <p class="col-2">Filtrer par : </p>
+        <select name="id_annee" class="custom-select">
+            {% for year in years %}
+            <option value="{{ year.id }}">{{ year.year }}
+            </option>
+            {% endfor %}
+        </select>
+        <button type="submit">Filtrer</button>
+    </form>#}
     <table>
         <thead>
             <tr>
@@ -27,7 +38,13 @@
 
                 <td>{{group.semester}}</td>
 
-                <td>{{group.campain}}</td>
+                <td scope="row">{% for year in table_year %}
+                    {% if year.group_id == group.id %}
+                    {{ year.year_description }}
+                    {% endif %}
+                    {% endfor %}
+                </td>
+
 
                 <th scope="row">{% for task in table %}
                     {% if task.group_id == group.id %}

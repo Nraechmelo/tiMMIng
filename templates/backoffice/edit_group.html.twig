@@ -3,11 +3,11 @@
 {% block title %}Modifier un groupe{% endblock %}
 
 {% block body %}
-    <h1>Editer un groupe </h1>
+<h1>Editer un groupe </h1>
 
-    {{ include('backoffice/add_group.html.twig', {'button_label': 'Update'}) }}
+{{form(form)}}
 
-    <a href="{{ path('group') }}">Retour</a>
+<a href="{{ path('group') }}">Retour</a>
 
 
 {% endblock %}

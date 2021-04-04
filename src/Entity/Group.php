@@ -35,16 +35,17 @@ class Group
      */
     private $type;
 
-    /**
-     * @ORM\Column(type="string", length=15)
-     */
-    private $campain;
 
     /**
      * @ORM\ManyToMany(targetEntity=Task::class, mappedBy="classgroup")
      * @ORM\JoinTable(name="tasks")
      */
     private $tasks;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Campain::class, inversedBy="groups")
+     */
+    private $year;
 
     public function __construct()
     {
@@ -130,8 +131,21 @@ class Group
 
         return $this;
     }
+
+
+    public function getYear(): ?campain
+    {
+        return $this->year;
+    }
+
+    public function setYear(?campain $year): self
+    {
+        $this->year = $year;
+
+        return $this;
+    }
     public function __toString(): string
     {
-    return $this->name;
+        return $this->name;
     }
 }

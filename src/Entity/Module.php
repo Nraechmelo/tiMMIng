@@ -27,15 +27,11 @@ class Module
     /**
      * @ORM\Column(type="string", length=10, nullable=true)
      */
-    private $year;
+    private $semester;
+
 
     /**
-     * @ORM\Column(type="string", length=15)
-     */
-    private $campain;
-
-    /**
-     * @ORM\ManyToMany(targetEntity=Teacher::class, mappedBy="modules")
+     * @ORM\ManyToMany(targetEntity=Teacher::class, mappedBy="modules", cascade={"persist"})
      */
     private $teachers;
 
@@ -43,6 +39,11 @@ class Module
      * @ORM\OneToMany(targetEntity=Task::class, mappedBy="module", cascade={"persist", "remove"})
      */
     private $tasks;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Campain::class, inversedBy="modules", cascade={"persist"})
+     */
+    private $year;
 
     public function __construct()
     {
@@ -66,30 +67,30 @@ class Module
 
         return $this;
     }
+    public function getSemester(): ?string
+    {
+        return $this->semester;
+    }
 
-    public function getYear(): ?string
+    public function setSemester(string $semester): self
+    {
+        $this->semester = $semester;
+
+        return $this;
+    }
+
+    public function getYear(): ?campain
     {
         return $this->year;
     }
 
-    public function setYear(?string $year): self
+    public function setYear(?campain $year): self
     {
         $this->year = $year;
 
         return $this;
     }
 
-    public function getCampain(): ?string
-    {
-        return $this->campain;
-    }
-
-    public function setCampain(string $campain): self
-    {
-        $this->campain = $campain;
-
-        return $this;
-    }
 
     /**
      * @return Collection|Teacher[]
@@ -117,7 +118,10 @@ class Module
 
         return $this;
     }
-
+    // public function setTeachers(array $teachers)
+    // {
+    //     $this->teachers = $teachers;
+    // }
     /**
      * @return Collection|Task[]
      */

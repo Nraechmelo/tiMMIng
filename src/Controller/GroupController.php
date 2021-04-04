@@ -9,37 +9,77 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use App\Form\GroupType;
 use App\Entity\Group;
+use App\Entity\Campain;
 use App\Entity\Task;
 use App\Repository\TaskRepository;
 use App\Repository\GroupRepository;
+use App\Repository\CampainRepository;
 
 class GroupController extends AbstractController
 {
     /**
      * @Route("/backoffice/groups", name="group")
      */
-    public function index(GroupRepository $grouprepository): Response
+    public function index(GroupRepository $grouprepository, CampainRepository $campainrepository): Response
     {
         $groups = $grouprepository->findAll();
         foreach ($groups as $group) {
             $id = $group->getId();
             $tasks = $group->getTasks();
+            $annee = $group->getYear()->getYear();
+            $table_year[] = ["group_id" => $id, "year_description" => $annee];
+            foreach ($tasks as $task) {
+                $tache = $task->getDescription();
+                $table_tache[] = ["group_id" => $id, "task_description" => $tache];
+            }
+        }
+        // dd($campainrepository->findAll());
+        return $this->render('backoffice/group.html.twig', [
+            'groups' => $groups,
+            'table' => $table_tache,
+            'table_year' => $table_year,
+            'years' => $campainrepository->findAll(),
+
+        ]);
+    }
+
+    /*************** FONCTION FILTRE QUI MARCHE PAS ****************************/
+    /**
+     * @Route("/backoffice/groups/filtered", name="group_filter")
+     *  */
+    /* public function filter(Campain $year, Request $request, GroupRepository $grouprepository, CampainRepository $campainrepository): Response
+    {
+
+        dd('coucou');
+        // $filtre = $request->request->get('year');
+        // dd($filtre);
+        // $groups = $grouprepository->findBy(
+        //     ['year' => $filtre]
+        // );
+
+        foreach ($groups as $group) {
+            $id = $group->getId();
+            $tasks = $group->getTasks();
+            $annee = $group->getYear()->getYear();
+            $table_year[] = ["group_id" => $id, "year_description" => $annee];
             foreach ($tasks as $task) {
                 $tache = $task->getDescription();
                 $table_tache[] = ["group_id" => $id, "task_description" => $tache];
             }
         }
         return $this->render('backoffice/group.html.twig', [
-            'groups' => $groups,
+            // 'groups' => $groups,
+            'years' => $campainrepository->findAll(),
             'table' => $table_tache,
+            'table_year' => $table_year,
         ]);
-    }
+    }*/
     /**
      * @Route("/backoffice/groups/add", name="add_group")
      */
-    public function add_group(Request $request, EntityManagerInterface $em): Response
+    public function add_group(Request $request, EntityManagerInterface $em, CampainRepository $campainrepository): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         $group = new Group();
         // préparer l'objet formulaire
@@ -50,16 +90,15 @@ class GroupController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             // récupérer les données soumises
             $group = $form->getData();
-            // enregistrer les données dans la base
             $em->persist($group);
             $em->flush();
-
-            // rediriger vers l’accueil
             return $this->redirectToRoute('group');
         }
         // sinon afficher le formulaire
+        $years = $campainrepository->findAll();
         return $this->render('backoffice/add_group.html.twig', [
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'years' => $years,
         ]);
     }
     /**
@@ -69,7 +108,7 @@ class GroupController extends AbstractController
      */
     public function delete(Group $group, EntityManagerInterface $em)
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         $em->remove($group);
         $em->flush();
@@ -80,21 +119,22 @@ class GroupController extends AbstractController
      * 
      * @Route("backoffice/{id}/group", name="edit_group", methods={"GET","POST"})
      */
-    public function edit(Request $request, Group $group): Response
+    public function edit(Request $request, Group $group, EntityManagerInterface $em, CampainRepository $campainrepository, GroupRepository $grouprepository): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
+        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        // $group = new Group();
         $form = $this->createForm(GroupType::class, $group);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->getDoctrine()->getManager()->flush();
-
             return $this->redirectToRoute('group');
         }
-
+        $groups = $grouprepository->findAll();
+        $years = $campainrepository->findAll();
         return $this->render('backoffice/edit_group.html.twig', [
             'groups' => $group,
+            'years' => $years,
             'form' => $form->createView(),
         ]);
     }

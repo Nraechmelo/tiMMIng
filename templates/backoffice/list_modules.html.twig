@@ -9,6 +9,7 @@
             <tr>
                 <th scope="col">Nom</th>
                 <th scope="col">Professeurs</th>
+                <th scope="col">Semestre</th>
                 <th scope="col">Année</th>
                 <th scope="col">Supprimer</th>
                 <th scope="col"> Modification</th>
@@ -27,15 +28,23 @@
                     {%endif%}
                     {% endfor %}
                 </th>
-                <th scope="row">
-                    {{ module.campain }}
-                </th>
+                <td scope="row">
+                    {{ module.semester}}
+                </td>
+                <td scope="row">
+                    {% for year in table_year %}
+                    {% if year.module_id == module.id %}
+                    {{ year.year_description }}
+                    {% endif %}
+                    {% endfor %}
+                </td>
                 <td>
                     <form action="{{ path('module_delete' ,{id:module.id})}}" method="POST" class="d-inline">
                         <input type="hidden" name="_method" value="delete">
                         <button class="btn" type="submit">Supprimer</button>
                     </form>
                 </td>
+                <td><a href="{{ path('edit_module', { id: module.id })}}">Editer</a></td>
             </tr>
             {% endfor %}
         </tbody>

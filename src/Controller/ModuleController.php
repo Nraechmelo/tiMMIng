@@ -4,9 +4,11 @@ namespace App\Controller;
 
 use App\Repository\TeacherRepository;
 use App\Repository\ModuleRepository;
-// use App\Form\ModuleType;
+use App\Repository\CampainRepository;
+use App\Form\ModuleType;
 use App\Entity\Teacher;
 use App\Entity\Module;
+use App\Entity\Campain;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,9 +23,12 @@ class ModuleController extends AbstractController
     public function listModules(ModuleRepository $modulerepository): Response
     {
         $modules = $modulerepository->findAll();
+        $table_teach = [];
         foreach ($modules as $module) {
             $id = $module->getId();
             $teachers = $module->getTeachers();
+            $annee = $module->getYear();
+            $table_year[] = ["module_id" => $id, "year_description" => $annee];
             foreach ($teachers as $teach) {
                 $teacher = $teach->getName();
                 $table_teach[] = ["module_id" => $id, "teacher_name" => $teacher];
@@ -32,17 +37,19 @@ class ModuleController extends AbstractController
         return $this->render('backoffice/list_modules.html.twig', [
             'modules' => $modules,
             'teachers' => $table_teach,
+            'table_year' => $table_year,
         ]);
     }
     /**
      * @Route("/backoffice/module/add", name="module_add", methods="get")
      */
-    public function addModule(TeacherRepository $teacherRepository)
+    public function addModule(TeacherRepository $teacherRepository, CampainRepository $campainrepository)
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         return $this->render('backoffice/add_module.html.twig', [
             'teachers' => $teacherRepository->findAll(),
+            'years' => $campainrepository->findAll(),
         ]);
     }
     /**
@@ -51,15 +58,21 @@ class ModuleController extends AbstractController
      */
     public function save(ModuleRepository $moduleRepository, EntityManagerInterface $em, Request $request)
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         $module = new Module();
+        // dd($request->request->all());
         $module->setName($request->request->get('name'));
+        $module->setSemester($request->request->get('semester'));
         foreach ($_POST["teacher"] as $id_teacher) {
             $id = $id_teacher;
             $teacher = $this->getDoctrine()->getRepository(Teacher::class)->find($id);
             $module->addTeacher($teacher);
         };
+        $id = $request->request->get('year');
+        $year = $this->getDoctrine()->getRepository(Campain::class)->find($id);
+        $module->setYear($year);
+        // dd($module);
         $em->persist($module);
         $em->flush();
         dump($_FILES);
@@ -71,7 +84,7 @@ class ModuleController extends AbstractController
      */
     public function delete(Module $module, EntityManagerInterface $em): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         dump($module);
         $em->remove($module);
@@ -82,24 +95,32 @@ class ModuleController extends AbstractController
         $em->flush();
         return $this->redirectToRoute('modules');
     }
-    // /**
-    //  * @Route("/teacher/{id}/edit", name="teacher_edit")
-    //  */
-    // public function edit(Request $request, Teacher $teacher, ModuleRepository $moduleRepository): Response
-    // {
-    //     $form = $this->createForm(TeacherType::class, $teacher);
-    //     $form->handleRequest($request);
+    /**
+     * Editer un groupe
+     * 
+     * @Route("backoffice/{id}/module", name="edit_module", methods={"GET","POST"})
+     */
+    public function edit(Request $request, Module $module, EntityManagerInterface $em, CampainRepository $campainrepository, ModuleRepository $modulerepository, TeacherRepository $teacherrepository): Response
+    {
+        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $form = $this->createForm(ModuleType::class, $module);
+        $form->handleRequest($request);
 
-    //     if ($form->isSubmitted() && $form->isValid()) {
-    //         $this->getDoctrine()->getManager()->flush();
-    //         return $this->redirectToRoute('teachers');
-    //     }
-    //     return $this->render('backoffice/edit_teacher.html.twig', [
-    //         'teacher' => $teacher,
-    //         'form' => $form->createView(),
-    //         'modules' => $moduleRepository->findAll(),
-    //     ]);
-    // }
+        if ($form->isSubmitted() && $form->isValid()) {
+            // dd($request->request);
+            $this->getDoctrine()->getManager()->flush();
+            return $this->redirectToRoute('modules');
+        }
+        $modules = $modulerepository->findAll();
+        $years = $campainrepository->findAll();
+        return $this->render('backoffice/edit_module.html.twig', [
+            'modules' => $modules,
+            'years' => $years,
+            'teachers' => $teacherrepository->findAll(),
+            'form' => $form->createView(),
+
+        ]);
+    }
     // /**
     //  * @Route("/teacher/{id}", name="teacher_show")
     //  */
