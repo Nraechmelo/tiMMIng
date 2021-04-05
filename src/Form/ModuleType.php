@@ -19,14 +19,8 @@ class ModuleType extends AbstractType
             ->add('name')
             ->add('semester')
             ->add('teachers', EntityType::class, [
-                // looks for choices from this entity
                 'class' => Teacher::class,
-
-                // uses the User.username property as the visible option string
                 'choice_label' => 'name',
-                // 'mapped' => false,
-
-                // used to render a select box, check boxes or radios
                 'multiple' => true,
                 'expanded' => true,
                 'by_reference' => false,

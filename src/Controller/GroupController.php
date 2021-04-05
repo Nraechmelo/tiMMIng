@@ -33,7 +33,6 @@ class GroupController extends AbstractController
                 $table_tache[] = ["group_id" => $id, "task_description" => $tache];
             }
         }
-        // dd($campainrepository->findAll());
         return $this->render('backoffice/group.html.twig', [
             'groups' => $groups,
             'table' => $table_tache,
@@ -79,8 +78,7 @@ class GroupController extends AbstractController
      */
     public function add_group(Request $request, EntityManagerInterface $em, CampainRepository $campainrepository): Response
     {
-        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $group = new Group();
         // préparer l'objet formulaire
         $form = $this->createForm(GroupType::class, $group);
@@ -102,14 +100,13 @@ class GroupController extends AbstractController
         ]);
     }
     /**
-     * Effacer une tâche.
+     * Effacer un groupe.
  
      * @Route("backoffice/group/{id}/delete", name="delete_group", methods="DELETE")
      */
     public function delete(Group $group, EntityManagerInterface $em)
     {
-        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $em->remove($group);
         $em->flush();
         return $this->redirectToRoute('group');
@@ -121,8 +118,7 @@ class GroupController extends AbstractController
      */
     public function edit(Request $request, Group $group, EntityManagerInterface $em, CampainRepository $campainrepository, GroupRepository $grouprepository): Response
     {
-        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
-        // $group = new Group();
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $form = $this->createForm(GroupType::class, $group);
         $form->handleRequest($request);
 

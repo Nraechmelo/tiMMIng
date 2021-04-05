@@ -45,23 +45,20 @@ class ModuleController extends AbstractController
      */
     public function addModule(TeacherRepository $teacherRepository, CampainRepository $campainrepository)
     {
-        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         return $this->render('backoffice/add_module.html.twig', [
             'teachers' => $teacherRepository->findAll(),
             'years' => $campainrepository->findAll(),
         ]);
     }
     /**
-     * Enregistrer un nouveau professeur
+     * Enregistrer un nouveau module
      * @Route("/backoffice/module/add", name="module_add_save", methods="post")
      */
     public function save(ModuleRepository $moduleRepository, EntityManagerInterface $em, Request $request)
     {
-        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $module = new Module();
-        // dd($request->request->all());
         $module->setName($request->request->get('name'));
         $module->setSemester($request->request->get('semester'));
         foreach ($_POST["teacher"] as $id_teacher) {
@@ -72,7 +69,6 @@ class ModuleController extends AbstractController
         $id = $request->request->get('year');
         $year = $this->getDoctrine()->getRepository(Campain::class)->find($id);
         $module->setYear($year);
-        // dd($module);
         $em->persist($module);
         $em->flush();
         dump($_FILES);
@@ -84,8 +80,7 @@ class ModuleController extends AbstractController
      */
     public function delete(Module $module, EntityManagerInterface $em): Response
     {
-        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         dump($module);
         $em->remove($module);
         $teachers = $module->getTeachers();
@@ -96,18 +91,17 @@ class ModuleController extends AbstractController
         return $this->redirectToRoute('modules');
     }
     /**
-     * Editer un groupe
+     * Editer un module
      * 
      * @Route("backoffice/{id}/module", name="edit_module", methods={"GET","POST"})
      */
     public function edit(Request $request, Module $module, EntityManagerInterface $em, CampainRepository $campainrepository, ModuleRepository $modulerepository, TeacherRepository $teacherrepository): Response
     {
-        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $form = $this->createForm(ModuleType::class, $module);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // dd($request->request);
             $this->getDoctrine()->getManager()->flush();
             return $this->redirectToRoute('modules');
         }
@@ -121,31 +115,4 @@ class ModuleController extends AbstractController
 
         ]);
     }
-    // /**
-    //  * @Route("/teacher/{id}", name="teacher_show")
-    //  */
-    // public function show(Teacher $teacher)
-    // {
-    //     $modules = $teacher->getModules();
-    //     $tasks = $teacher->getTasks();
-    //     $taches = [];
-    //     $mods = [];
-    //     foreach ($modules as $mod) {
-    //         $module = $mod->getName();
-    //         $mods[] = ["module_name" => $module];
-    //     }
-    //     foreach ($tasks as $task) {
-    //         $tache = $task->getDescription();
-    //         $deadline = $task->getDeadline();
-    //         $active = $task->getVisible();
-    //         $module = $task->getModule();
-    //         $taches[] = ["tache" => $tache, "visible" => $active, "deadline" => $deadline, "module" => $module];
-    //         // dd($taches);
-    //     }
-    //     return $this->render('backoffice/show_teacher.html.twig', [
-    //         'teacher' => $teacher,
-    //         'tasks' => $taches,
-    //         'modules' => $mods,
-    //     ]);
-    // }
 }

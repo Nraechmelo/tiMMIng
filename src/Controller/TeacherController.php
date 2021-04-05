@@ -83,8 +83,7 @@ class TeacherController extends AbstractController
      */
     public function edit(Request $request, Teacher $teacher, ModuleRepository $moduleRepository): Response
     {
-        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $form = $this->createForm(TeacherType::class, $teacher);
         $form->handleRequest($request);
 
